@@ -2,12 +2,11 @@ package peer
 
 import (
 	"context"
-	"github.com/ihciah/rabbit-tcp/connection"
-	"github.com/ihciah/rabbit-tcp/connection_pool"
-	"github.com/ihciah/rabbit-tcp/tunnel"
-	"github.com/ihciah/rabbit-tcp/tunnel_pool"
+	"github.com/aagun1234/rabbit-ws/connection"
+	"github.com/aagun1234/rabbit-ws/connection_pool"
+	"github.com/aagun1234/rabbit-ws/tunnel"
+	"github.com/aagun1234/rabbit-ws/tunnel_pool"
 	"math/rand"
-	"rabbit-tcp-MTCP-ws/wsconn"
 )
 
 type ClientPeer struct {
@@ -41,12 +40,6 @@ func newClientPeerWithID(peerID uint32, tunnelNum int, endpoints []string, ciphe
 }
 
 func (cp *ClientPeer) Dial(address string) connection.Connection {
-	conn := cp.connectionPool.NewPooledInboundConnection()
-	conn.SendConnect(address)
-	return conn
-}
-
-func (cp *ClientPeer) wsDial(address string) connection.wsConnection {
 	conn := cp.connectionPool.NewPooledInboundConnection()
 	conn.SendConnect(address)
 	return conn

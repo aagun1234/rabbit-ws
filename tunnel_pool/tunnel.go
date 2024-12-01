@@ -6,18 +6,17 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/ihciah/rabbit-tcp/block"
-	"github.com/ihciah/rabbit-tcp/logger"
-	"github.com/ihciah/rabbit-tcp/tunnel"
+	"github.com/aagun1234/rabbit-ws/block"
+	"github.com/aagun1234/rabbit-ws/logger"
+	"github.com/aagun1234/rabbit-ws/tunnel"
 	"io"
 	"math/rand"
 	"net"
 	"time"
-	"rabbit-tcp-MTCP-ws/wsconn"
 )
 
 type Tunnel struct {
-	wsconn.WebSocketConn //net.Conn
+	net.Conn
 	ctx      context.Context
 	cancel   context.CancelFunc
 	tunnelID uint32
@@ -26,18 +25,18 @@ type Tunnel struct {
 }
 
 // Create a new tunnel from a net.Conn and cipher with random tunnelID
-func NewActiveTunnel(conn WebSocketConn, ciph tunnel.Cipher, peerID uint32) (Tunnel, error) {
+func NewActiveTunnel(conn net.Conn, ciph tunnel.Cipher, peerID uint32) (Tunnel, error) {
 	tun := newTunnelWithID(conn, ciph, peerID)
 	return tun, tun.activeExchangePeerID()
 }
 
-func NewPassiveTunnel(conn WebSocketConn, ciph tunnel.Cipher) (Tunnel, error) {
+func NewPassiveTunnel(conn net.Conn, ciph tunnel.Cipher) (Tunnel, error) {
 	tun := newTunnelWithID(conn, ciph, 0)
 	return tun, tun.passiveExchangePeerID()
 }
 
 // Create a new tunnel from a net.Conn and cipher with given tunnelID
-func newTunnelWithID(conn WebSocketConn, ciph tunnel.Cipher, peerID uint32) Tunnel {
+func newTunnelWithID(conn net.Conn, ciph tunnel.Cipher, peerID uint32) Tunnel {
 	tunnelID := rand.Uint32()
 	tun := Tunnel{
 		Conn:     tunnel.NewEncryptedConn(conn, ciph),

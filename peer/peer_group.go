@@ -2,12 +2,11 @@ package peer
 
 import (
 	"context"
-	"github.com/ihciah/rabbit-tcp/logger"
-	"github.com/ihciah/rabbit-tcp/tunnel"
-	"github.com/ihciah/rabbit-tcp/tunnel_pool"
+	"github.com/aagun1234/rabbit-ws/logger"
+	"github.com/aagun1234/rabbit-ws/tunnel"
+	"github.com/aagun1234/rabbit-ws/tunnel_pool"
 	"net"
 	"sync"
-	"rabbit-tcp-MTCP-ws/wsconn"
 )
 
 type PeerGroup struct {
@@ -54,7 +53,7 @@ func (pg *PeerGroup) AddTunnel(tunnel *tunnel_pool.Tunnel) error {
 }
 
 // Like AddTunnel, add a raw connection
-func (pg *PeerGroup) AddTunnelFromConn(conn WebSocketConn) error {
+func (pg *PeerGroup) AddTunnelFromConn(conn net.Conn) error {
 	tun, err := tunnel_pool.NewPassiveTunnel(conn, pg.cipher)
 	if err != nil {
 		conn.Close()

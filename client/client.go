@@ -5,11 +5,11 @@ import (
 	"net"
 	"sync"
 	"time"
-	
-	"github.com/ihciah/rabbit-tcp/connection"
-	"github.com/ihciah/rabbit-tcp/logger"
-	"github.com/ihciah/rabbit-tcp/peer"
-	"github.com/ihciah/rabbit-tcp/tunnel"
+
+	"github.com/aagun1234/rabbit-ws/connection"
+	"github.com/aagun1234/rabbit-ws/logger"
+	"github.com/aagun1234/rabbit-ws/peer"
+	"github.com/aagun1234/rabbit-ws/tunnel"
 )
 
 type Client struct {
@@ -29,7 +29,7 @@ func (c *Client) Dial(address string) connection.HalfOpenConn {
 }
 
 func (c *Client) ServeForward(listen, dest string) error {
-	c.logger.Infof("Listen on  %s\n",listen)
+	c.logger.Infof("Listen on %s\n",dest)
 	listener, err := net.Listen("tcp", listen)
 	if err != nil {
 		return err
@@ -44,7 +44,6 @@ func (c *Client) ServeForward(listen, dest string) error {
 			c.logger.Infof("Accepted a connection. %s\n",dest)
 			//c.logger.Infoln("Accepted a connection.")
 			connProxy := c.Dial(dest)
-			c.logger.Infof("Dial: %s\n",dest)
 			biRelay(conn.(*net.TCPConn), connProxy, c.logger)
 		}()
 	}

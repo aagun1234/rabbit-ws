@@ -6,11 +6,10 @@ import (
 	"io"
 	"net"
 	"time"
-	"wsconn/wsconn"
-	"github.com/ihciah/rabbit-tcp/block"
-	"github.com/ihciah/rabbit-tcp/logger"
+
+	"github.com/aagun1234/rabbit-ws/block"
+	"github.com/aagun1234/rabbit-ws/logger"
 	"go.uber.org/atomic"
-	//"github.com/gorilla/websocket"
 )
 
 type OutboundConnection struct {
@@ -142,8 +141,7 @@ func (oc *OutboundConnection) connect(address string) {
 	if !oc.closed.Load() || oc.HalfOpenConn != nil {
 		return
 	}
-	//rawConn, err := net.Dial("tcp", address)
-	rawConn, err := wsconn.WebSocketDial("tcp", address)
+	rawConn, err := net.Dial("tcp", address)
 	if err == nil {
 		oc.logger.Infof("Dial to %s successfully.\n", address)
 		oc.HalfOpenConn = rawConn.(*net.TCPConn)

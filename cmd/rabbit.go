@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/ihciah/rabbit-tcp/client"
-	"github.com/ihciah/rabbit-tcp/logger"
-	"github.com/ihciah/rabbit-tcp/server"
-	"github.com/ihciah/rabbit-tcp/tunnel"
+	"github.com/aagun1234/rabbit-ws/client"
+	"github.com/aagun1234/rabbit-ws/logger"
+	"github.com/aagun1234/rabbit-ws/server"
+	"github.com/aagun1234/rabbit-ws/tunnel"
 	"log"
 	"strings"
 )
@@ -36,7 +36,7 @@ func parseFlags() (pass bool, mode int, password string, addr []string, listen s
 
 	// version
 	if printVersion {
-		log.Println("Rabbit TCP (https://github.com/ihciah/rabbit-tcp/)")
+		log.Println("Rabbit TCP (https://github.com/aagun1234/rabbit-ws/)")
 		log.Printf("Version: %s.\n", Version)
 		pass = false
 		return
@@ -98,7 +98,7 @@ func main() {
 		c.ServeForward(listen, dest)
 	} else {
 		s := server.NewServer(cipher)
-		s.wsServe(addr)
+		s.Serve(addr)
 	}
 }
 

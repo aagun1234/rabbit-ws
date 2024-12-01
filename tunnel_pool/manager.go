@@ -2,13 +2,12 @@ package tunnel_pool
 
 import (
 	"context"
-	"github.com/ihciah/rabbit-tcp/logger"
-	"github.com/ihciah/rabbit-tcp/tunnel"
+	"github.com/aagun1234/rabbit-ws/logger"
+	"github.com/aagun1234/rabbit-ws/tunnel"
 	"go.uber.org/atomic"
 	"net"
 	"sync"
 	"time"
-	"wsconn/wsconn"
 )
 
 type Manager interface {
@@ -50,8 +49,7 @@ func (cm *ClientManager) DecreaseNotify(pool *TunnelPool) {
 		endpoint:=cm.endpoints[tunnelToCreate%len(cm.endpoints)]
 		if endpoint!="" {
 			cm.logger.Infof("Need %d new tunnels to %s now.\n", tunnelToCreate,endpoint)
-			//conn, err := net.Dial("tcp", endpoint) //cm.endpoint)
-			conn, err := wsconn.WebSocketDial("tcp", endpoint) //cm.endpoint)
+			conn, err := net.Dial("tcp", endpoint) //cm.endpoint)
 			if err != nil {
 				cm.logger.Errorf("Error when dial to %s: %v.\n", endpoint, err)
 				time.Sleep(ErrorWaitSec * time.Second)

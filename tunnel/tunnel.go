@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"io"
 	"net"
-	"rabbit-tcp-MTCP-ws/wsconn"
 )
 
 // payloadSizeMask is the maximum size of payload in bytes.
@@ -193,7 +192,7 @@ func increment(b []byte) {
 }
 
 type streamConn struct {
-	WebSocketConn//net.Conn
+	net.Conn
 	Cipher
 	r *reader
 	w *writer
@@ -268,7 +267,7 @@ func (c *streamConn) ReadFrom(r io.Reader) (int64, error) {
 }
 
 // NewEncryptedConn wraps a stream-oriented net.Conn with cipher.
-func NewEncryptedConn(c WebSocketConn, ciph Cipher) WebSocketConn {
+func NewEncryptedConn(c net.Conn, ciph Cipher) net.Conn {
 	if ciph == nil {
 		return c
 	}
