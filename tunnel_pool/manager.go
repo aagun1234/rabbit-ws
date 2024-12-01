@@ -4,8 +4,9 @@ import (
 	"context"
 	"github.com/aagun1234/rabbit-ws/logger"
 	"github.com/aagun1234/rabbit-ws/tunnel"
+	"github.com/aagun1234/rabbit-ws/wsconn"
 	"go.uber.org/atomic"
-	"net"
+	//"net"
 	"sync"
 	"time"
 )
@@ -34,6 +35,11 @@ func NewClientManager(tunnelNum int, endpoints []string, peerID uint32, cipher t
 	}
 }
 
+
+
+
+
+
 // Keep tunnelPool size above tunnelNum
 func (cm *ClientManager) DecreaseNotify(pool *TunnelPool) {
 	cm.decreaseNotifyLock.Lock()
@@ -49,7 +55,8 @@ func (cm *ClientManager) DecreaseNotify(pool *TunnelPool) {
 		endpoint:=cm.endpoints[tunnelToCreate%len(cm.endpoints)]
 		if endpoint!="" {
 			cm.logger.Infof("Need %d new tunnels to %s now.\n", tunnelToCreate,endpoint)
-			conn, err := net.Dial("tcp", endpoint) //cm.endpoint)
+			conn, err := wsconn.wsDial(endpoint) //cm.endpoint)
+			//conn, err := net.Dial("tcp", endpoint) //cm.endpoint)
 			if err != nil {
 				cm.logger.Errorf("Error when dial to %s: %v.\n", endpoint, err)
 				time.Sleep(ErrorWaitSec * time.Second)
@@ -66,7 +73,7 @@ func (cm *ClientManager) DecreaseNotify(pool *TunnelPool) {
 			pool.AddTunnel(&tun)
 			tunnelToCreate--
 			cm.logger.Infof("Successfully dialed to %s. TunnelToCreate: %d\n", endpoint, tunnelToCreate)
-		    }
+		}
 	}
 }
 

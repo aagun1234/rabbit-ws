@@ -18,7 +18,7 @@ const (
 	DefaultPassword = "PASSWORD"
 )
 
-func parseFlags() (pass bool, mode int, password string, addr []string, listen string, dest string, tunnelN int, verbose int) {
+func parseFlags() (pass bool, mode int, password string, addr []string, wsaddr []string, listen string, dest string, tunnelN int, verbose int) {
 	var modeString string
 	var rabbitaddr string
 	var printVersion bool
@@ -84,6 +84,7 @@ func parseFlags() (pass bool, mode int, password string, addr []string, listen s
 	
 	addr = strings.Split(rabbitaddr, ",")
 	return
+
 }
 
 func main() {
@@ -95,7 +96,7 @@ func main() {
 	logger.LEVEL = verbose
 	if mode == ClientMode {
 		c := client.NewClient(tunnelN, addr, cipher)
-		c.ServeForward(listen, dest)
+		c.ServeForward(listen, dest) //本地侦听端口，远端转发地址
 	} else {
 		s := server.NewServer(cipher)
 		s.Serve(addr)
