@@ -9,8 +9,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aagun1234/rabbit-ws/block"
-	"github.com/aagun1234/rabbit-ws/logger"
+	"rabbit-ws/block"
+	"rabbit-ws/logger"
 	"go.uber.org/atomic"
 )
 

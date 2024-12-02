@@ -12,35 +12,16 @@ import (
 )
 
 
-// connectToServer 根据地址判断连接类型，并返回相应的 net.Conn 实现
-func wsDial(address string) (net.Conn, error) {
-	if strings.HasPrefix(address, "ws://") {
-		// 如果是 WebSocket 地址，建立 WebSocket 连接
-		url := "ws" + address[2:] // 转换 ws:// 为 wss://
-		conn, _, err := websocket.DefaultDialer.Dial(url, nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect WebSocket: %w", err)
-		}
-		return &websocketConn{Conn: conn}, nil
-	} else {
-		// 如果是普通的 TCP 地址，建立 TCP 连接
-		conn, err := net.Dial("tcp", address)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect TCP: %w", err)
-		}
-		return conn, nil
-	}
-}
-
 // websocketConn 是我们实现的 net.Conn 接口的适配器，它封装了 websocket.Conn
 type websocketConn struct {
-	*websocket.Conn
+	Conn *websocket.Conn
 }
 
-// NewwebsocketConn 创建一个 websocketConn 实例
+// NewWebSocketConn 是创建 websocketConn 的工厂函数
 func NewwebsocketConn(conn *websocket.Conn) *websocketConn {
-	return &websocketConn{Conn: conn}
+    return &websocketConn{Conn: conn}
 }
+
 
 // Read 方法实现 net.Conn 接口中的 Read
 func (ws *websocketConn) Read(b []byte) (n int, err error) {
@@ -112,6 +93,31 @@ func WebSocketDial(network, address string) (net.Conn, error) {
 	// 返回一个封装了 WebSocket 连接的 websocketConn 实例
 	return NewwebsocketConn(conn), nil
 }
+
+// connectToServer 根据地址判断连接类型，并返回相应的 net.Conn 实现
+func websocketDial(network, address string) (net.Conn, error) {
+	if strings.HasPrefix(address, "ws://") || strings.HasPrefix(address, "wss://") {
+        // 如果是 WebSocket 地址，建立 WebSocket 连接
+        url := address
+        if !strings.HasPrefix(url, "ws://") && !strings.HasPrefix(url, "wss://") {
+            url = "ws://" + url
+        }
+        conn, _, err := websocket.DefaultDialer.Dial(url, nil)
+        if err != nil {
+            return nil, fmt.Errorf("failed to connect WebSocket: %w", err)
+        }
+        return NewwebsocketConn(conn), nil
+	} else {
+		// 如果是普通的 TCP 地址，建立 TCP 连接
+		conn, err := net.Dial(network, address)
+		if err != nil {
+			return nil, fmt.Errorf("failed to connect TCP: %w", err)
+		}
+		return conn, nil
+	}
+}
+
+
 
 
 type WebSocketListener struct {

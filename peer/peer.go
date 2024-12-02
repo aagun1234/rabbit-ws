@@ -4,8 +4,8 @@ import (
 	"context"
 	crand "crypto/rand"
 	"encoding/binary"
-	"github.com/aagun1234/rabbit-ws/connection_pool"
-	"github.com/aagun1234/rabbit-ws/tunnel_pool"
+	"rabbit-ws/connection_pool"
+	"rabbit-ws/tunnel_pool"
 	"io"
 	"math/rand"
 )

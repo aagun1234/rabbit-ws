@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/aagun1234/rabbit-ws/logger"
-	"github.com/aagun1234/rabbit-ws/peer"
-	"github.com/aagun1234/rabbit-ws/tunnel"
+	"rabbit-ws/logger"
+	"rabbit-ws/peer"
+	"rabbit-ws/tunnel"
 	"net"
 	"sync"
 )

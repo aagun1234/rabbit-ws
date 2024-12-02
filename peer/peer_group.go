@@ -2,9 +2,9 @@ package peer
 
 import (
 	"context"
-	"github.com/aagun1234/rabbit-ws/logger"
-	"github.com/aagun1234/rabbit-ws/tunnel"
-	"github.com/aagun1234/rabbit-ws/tunnel_pool"
+	"rabbit-ws/logger"
+	"rabbit-ws/tunnel"
+	"rabbit-ws/tunnel_pool"
 	"net"
 	"sync"
 )
