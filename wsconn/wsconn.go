@@ -80,19 +80,6 @@ func (ws *websocketConn) SetWriteDeadline(t time.Time) error {
 	return ws.Conn.SetWriteDeadline(t)
 }
 
-func WebSocketDial(network, address string) (net.Conn, error) {
-	// WebSocket 地址需要加上 "ws://" 或 "wss://"
-	url := "ws://" + address
-
-	// 创建 WebSocket 连接
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	// 返回一个封装了 WebSocket 连接的 websocketConn 实例
-	return NewwebsocketConn(conn), nil
-}
 
 // connectToServer 根据地址判断连接类型，并返回相应的 net.Conn 实现
 func websocketDial(network, address string) (net.Conn, error) {
