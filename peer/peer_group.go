@@ -2,11 +2,11 @@ package peer
 
 import (
 	"context"
+	"net"
+	"sync"
 	"rabbit-ws/logger"
 	"rabbit-ws/tunnel"
 	"rabbit-ws/tunnel_pool"
-	"net"
-	"sync"
 )
 
 type PeerGroup struct {

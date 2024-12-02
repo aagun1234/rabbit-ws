@@ -4,11 +4,12 @@ import (
 	"context"
 	"rabbit-ws/logger"
 	"rabbit-ws/tunnel"
-	"github.com/aagun1234/rabbit-ws/wsconn"
+	
 	"go.uber.org/atomic"
 	//"net"
 	"sync"
 	"time"
+	"rabbit-ws/websocketconn"
 )
 
 type Manager interface {
@@ -56,7 +57,7 @@ func (cm *ClientManager) DecreaseNotify(pool *TunnelPool) {
 		if endpoint!="" {
 			cm.logger.Infof("Need %d new tunnels to %s now.\n", tunnelToCreate,endpoint)
 			
-			conn, err := wsconn.websocketDial("tcp",endpoint) //cm.endpoint)
+			conn, err := websocketconn.ConnectToServer("tcp",endpoint) //cm.endpoint)
 			//conn, err := net.Dial("tcp", endpoint) //cm.endpoint)
 			
 			if err != nil {

@@ -1,89 +1,85 @@
-package wsconn
+package websocketconn
 
 import (
-	"fmt"
+    "fmt"
+    "net"
 	"net/http"
-	"github.com/gorilla/websocket"
-	"time"
-	"net"
 	"sync"
 	"errors"
+    "time"
 	"strings"
+    "github.com/gorilla/websocket"
 )
 
-
-// websocketConn 是我们实现的 net.Conn 接口的适配器，它封装了 websocket.Conn
 type websocketConn struct {
-	Conn *websocket.Conn
+    conn *websocket.Conn
+}
+
+type WebSocketListener struct {
+	upgrader websocket.Upgrader
+	conns    chan net.Conn
+	addr     net.Addr
+	mu       sync.Mutex
+	closed   bool
 }
 
 // NewWebSocketConn 是创建 websocketConn 的工厂函数
 func NewwebsocketConn(conn *websocket.Conn) *websocketConn {
-    return &websocketConn{Conn: conn}
+    return &websocketConn{conn: conn}
 }
 
-
-// Read 方法实现 net.Conn 接口中的 Read
-func (ws *websocketConn) Read(b []byte) (n int, err error) {
-	_, msg, err := ws.Conn.ReadMessage()
-	if err != nil {
-		return 0, err
-	}
-	copy(b, msg)
-	return len(msg), nil
+// Read 实现了 net.Conn 接口中的 Read 方法
+func (wc *websocketConn) Read(b []byte) (n int, err error) {
+    _, msg, err := wc.conn.ReadMessage()
+    if err != nil {
+        return 0, err
+    }
+    copy(b, msg)
+    return len(msg), nil
 }
 
-// Write 方法实现 net.Conn 接口中的 Write
-func (ws *websocketConn) Write(b []byte) (n int, err error) {
-	err = ws.Conn.WriteMessage(websocket.TextMessage, b)
-	if err != nil {
-		return 0, err
-	}
-	return len(b), nil
+// Write 实现了 net.Conn 接口中的 Write 方法
+func (wc *websocketConn) Write(b []byte) (n int, err error) {
+    err = wc.conn.WriteMessage(websocket.TextMessage, b)
+    if err != nil {
+        return 0, err
+    }
+    return len(b), nil
 }
 
-// Close 方法实现 net.Conn 接口中的 Close
-func (ws *websocketConn) Close() error {
-	return ws.Conn.Close()
+// Close 实现了 net.Conn 接口中的 Close 方法
+func (wc *websocketConn) Close() error {
+    return wc.conn.Close()
 }
 
-// LocalAddr 方法实现 net.Conn 接口中的 LocalAddr
-func (ws *websocketConn) LocalAddr() net.Addr {
-	// WebSocket 不直接提供 LocalAddr，我们返回一个假设的地址
-	// 可以根据实际情况替换为实际的 IP 地址或类似的信息
-	return &net.TCPAddr{IP: net.ParseIP("127.0.0.1"), Port: 8080}
+// LocalAddr 实现了 net.Conn 接口中的 LocalAddr 方法
+func (wc *websocketConn) LocalAddr() net.Addr {
+    return nil
 }
 
-// RemoteAddr 方法实现 net.Conn 接口中的 RemoteAddr
-func (ws *websocketConn) RemoteAddr() net.Addr {
-	// WebSocket 不直接提供 RemoteAddr，我们返回一个假设的地址
-	// 可以根据实际情况替换为实际的 IP 地址或类似的信息
-	return &net.TCPAddr{IP: net.ParseIP("192.168.1.1"), Port: 8080}
+// RemoteAddr 实现了 net.Conn 接口中的 RemoteAddr 方法
+func (wc *websocketConn) RemoteAddr() net.Addr {
+    return nil
 }
 
-// SetDeadline 方法实现 net.Conn 接口中的 SetDeadline
-func (ws *websocketConn) SetDeadline(t time.Time) error {
-	err := ws.Conn.SetReadDeadline(t)
-	if err != nil {
-		return err
-	}
-	return ws.Conn.SetWriteDeadline(t)
+// SetDeadline 实现了 net.Conn 接口中的 SetDeadline 方法
+func (wc *websocketConn) SetDeadline(t time.Time) error {
+    return nil
 }
 
-// SetReadDeadline 方法实现 net.Conn 接口中的 SetReadDeadline
-func (ws *websocketConn) SetReadDeadline(t time.Time) error {
-	return ws.Conn.SetReadDeadline(t)
+// SetReadDeadline 实现了 net.Conn 接口中的 SetReadDeadline 方法
+func (wc *websocketConn) SetReadDeadline(t time.Time) error {
+    return nil
 }
 
-// SetWriteDeadline 方法实现 net.Conn 接口中的 SetWriteDeadline
-func (ws *websocketConn) SetWriteDeadline(t time.Time) error {
-	return ws.Conn.SetWriteDeadline(t)
+// SetWriteDeadline 实现了 net.Conn 接口中的 SetWriteDeadline 方法
+func (wc *websocketConn) SetWriteDeadline(t time.Time) error {
+    return nil
 }
 
-
-// connectToServer 根据地址判断连接类型，并返回相应的 net.Conn 实现
-func websocketDial(network, address string) (net.Conn, error) {
-	if strings.HasPrefix(address, "ws://") || strings.HasPrefix(address, "wss://") {
+// ConnectToServer 根据地址判断连接类型，并返回相应的 net.Conn 实现
+func ConnectToServer(network, address string) (net.Conn, error) {
+    if strings.HasPrefix(address, "ws://") || strings.HasPrefix(address, "wss://") {
         // 如果是 WebSocket 地址，建立 WebSocket 连接
         url := address
         if !strings.HasPrefix(url, "ws://") && !strings.HasPrefix(url, "wss://") {
@@ -94,25 +90,14 @@ func websocketDial(network, address string) (net.Conn, error) {
             return nil, fmt.Errorf("failed to connect WebSocket: %w", err)
         }
         return NewwebsocketConn(conn), nil
-	} else {
-		// 如果是普通的 TCP 地址，建立 TCP 连接
-		conn, err := net.Dial(network, address)
-		if err != nil {
-			return nil, fmt.Errorf("failed to connect TCP: %w", err)
-		}
-		return conn, nil
-	}
-}
-
-
-
-
-type WebSocketListener struct {
-	upgrader websocket.Upgrader
-	conns    chan net.Conn
-	addr     net.Addr
-	mu       sync.Mutex
-	closed   bool
+    } else {
+        // 如果是普通的 TCP 地址，建立 TCP 连接
+        conn, err := net.Dial(network, address)
+        if err != nil {
+            return nil, fmt.Errorf("failed to connect TCP: %w", err)
+        }
+        return conn, nil
+    }
 }
 
 // NewWebSocketListener creates a new WebSocketListener.
